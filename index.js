@@ -4,12 +4,21 @@ const mysql = require('mysql2')
 const app = express()
 app.use(express.json())
 
-// ── Request logger ───────────────────────────────────────────────────────────
+// ── Logger ───────────────────────────────────────────────────────────────────
+const fs = require('fs')
+const logFile = fs.createWriteStream('server.log', { flags: 'a' })
+
+function log(message) {
+  const line = `[${new Date().toISOString()}] ${message}`
+  console.log(line)
+  logFile.write(line + '\n')
+}
+
 app.use((req, res, next) => {
   const start = Date.now()
   res.on('finish', () => {
     const duration = Date.now() - start
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} → ${res.statusCode} (${duration}ms)`)
+    log(`${req.method} ${req.url} → ${res.statusCode} (${duration}ms)`)
   })
   next()
 })

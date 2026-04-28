@@ -4,6 +4,16 @@ const mysql = require('mysql2')
 const app = express()
 app.use(express.json())
 
+// ── Request logger ───────────────────────────────────────────────────────────
+app.use((req, res, next) => {
+  const start = Date.now()
+  res.on('finish', () => {
+    const duration = Date.now() - start
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} → ${res.statusCode} (${duration}ms)`)
+  })
+  next()
+})
+
 // ── Database connection ──────────────────────────────────────────────────────
 const db = mysql.createConnection({
   host: '127.0.0.1',
